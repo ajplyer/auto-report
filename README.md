@@ -17,6 +17,8 @@ While not complex, the process was tedious and required some knowledge of excel.
 
 To install, simply download the "Auto Report" folder. No additional downloads are required.
 
+auto_report.exe was created using PyInstaller
+
 ## Usage
 
 As mentioned, this program is designed for a highly specific use case. Other users will likely not find it applicable to their needs. However, several batch reports have been included as originally downloaded for demonstration purposes.
