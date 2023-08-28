@@ -26,3 +26,16 @@ As mentioned, this program is designed for a highly specific use case. Other use
 The exported .csv file, of any name, must be placed into the Auto Report folder. Then simply running the "auto_report" executable will produce a finished .xlsx file named "batch".
 
 The names in all text files must be typed exactly as they appear in the original .csv sheet, anything not in coffee_list.txt will be deleted. The items will be sorted in the order they appear in 'coffee_list.txt'.
+
+## TODO
+
+- [ ] GUI for improved user experience
+  - [x] Drag and Drop for batch to sort
+  - [ ] Coffee List and Coffee Of The Month as lists in program
+    - [ ] Edit lists in program
+    - [ ] Rearrange Coffee List in program
+  - [ ] "Present" sorted batch report in program to avoid requiring user to find the file
+  - [ ] Design UI
+    - [ ] Icon
+    - [ ] Stylize drag and drop entry box
+    - [ ] Format colors to match Stone Creek Coffee color schemes
