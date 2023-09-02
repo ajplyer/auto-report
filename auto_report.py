@@ -2,7 +2,6 @@ import os
 import openpyxl
 from openpyxl.styles import Font, PatternFill
 import pandas as pd
-import glob
 
 #Returns numerical value of a row based on its coffee's position in the list of coffees
 #this facilitates a dynamic sorting order for the purposes of batch report formatting
@@ -137,6 +136,7 @@ def main(file_path):
     ws.column_dimensions['B'].width = 60
     ws.column_dimensions['C'].width = 10
 
-    wb.save('batch.xlsx')
+    save_here = os.path.dirname(file_path)
+    wb.save(save_here + '/batch.xlsx')
 
 if __name__ == '__main__': main()
