@@ -15,15 +15,16 @@ While not complex, the process was tedious and required some knowledge of excel.
 
 ## Installation
 
-To install, simply download the "Auto Report" folder. No additional downloads are required.
+To install, simply download the "Auto Report" executable, and the three text files "coffee_list", "com_med_dark", and "com_light". No additional downloads are required.
 
-auto_report.exe was created using PyInstaller
+Auto Report.exe was created using Auto PY to EXE
 
 ## Usage
 
 As mentioned, this program is designed for a highly specific use case. Other users will likely not find it applicable to their needs. However, several batch reports have been included as originally downloaded for demonstration purposes.
 
-The exported .csv file, of any name, must be placed into the Auto Report folder. Then simply running the "auto_report" executable will produce a finished .xlsx file named "batch".
+Simply drag and drop the unsorted .csv batch report into the white entry box, you will now be able to click "Sort Batch Report". Once sorting is complete you will be able to click "Open Sorted Batch" which, as the text implies, will open the fully sorted and formatted batch report.
+A "Clear Entry" button has been included for convenience, pressing it will clear the entry box and disable the other two previously mentioned buttons.
 
 The names in all text files must be typed exactly as they appear in the original .csv sheet, anything not in coffee_list.txt will be deleted. The items will be sorted in the order they appear in 'coffee_list.txt'.
 
@@ -34,7 +35,7 @@ The names in all text files must be typed exactly as they appear in the original
   - [ ] Coffee List and Coffee Of The Month as lists in program
     - [ ] Edit lists in program
     - [ ] Rearrange Coffee List in program
-  - [ ] "Present" sorted batch report in program to avoid requiring user to find the file
+  - [x] "Present" sorted batch report in program to avoid requiring user to find the file
   - [ ] Design UI
     - [ ] Icon
     - [ ] Stylize drag and drop entry box
