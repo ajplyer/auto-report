@@ -1,8 +1,8 @@
-import os
+from os import path
 import openpyxl
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font, PatternFill, Border, Side
 import pandas as pd
-import glob
+from datetime import datetime
 
 #Returns numerical value of a row based on its coffee's position in the list of coffees
 #this facilitates a dynamic sorting order for the purposes of batch report formatting
@@ -51,92 +51,101 @@ def coffee_of_the_month(com_row, type):
 
     return to_return
 
-def format_rows(current_coffee):
-    current_coffee.sort(key=lambda row: row[1], reverse=True)
-    
+def main(file_path):
+    current_date = datetime.now().strftime('%m%d%y%H%M')
+    batch_name = 'batch ' + current_date + '.xlsx'
+    batch_path = path.dirname(file_path) + '/' + batch_name
 
-    while len(current_coffee) > 0:
-        to_count = current_coffee.pop(0)
-        amount = to_count[2]
-
-        while len(current_coffee) > 0 and current_coffee[0][1] == to_count[1]:
+    #Nested within main() due to functionality being more centrally dependant than other functions
+    #Function interprets lists from lines 123-128 and appends them to excel worksheet with appropriate formatting 
+    def format_rows(current_coffee):
+        current_coffee.sort(key=lambda row: row[1], reverse=True)
+        
+        while len(current_coffee) > 0:
             to_count = current_coffee.pop(0)
-            amount += to_count[2]
+            amount = to_count[2]
 
-        row = (to_count[0], to_count[1], amount)
-        ws.append(row)
+            while len(current_coffee) > 0 and current_coffee[0][1] == to_count[1]:
+                to_count = current_coffee.pop(0)
+                amount += to_count[2]
 
-        if 'Five' in to_count[1] or '5' in to_count[1]:
-            for cell in ws[ws.max_row]:
-                cell.fill = PatternFill(start_color='00FFFF00', end_color='00FFFF00', fill_type='solid')
+            row = (to_count[0], to_count[1], amount)
+            ws.append(row)
 
-        if '#0' not in to_count[1]:
-            for cell in ws[ws.max_row]:
-                cell.font = Font(bold=True)
+            if 'Five' in to_count[1] or '5' in to_count[1]:
+                for cell in ws[ws.max_row]:
+                    cell.fill = PatternFill(start_color='00FFFF00', end_color='00FFFF00', fill_type='solid')
+
+            if '#0' not in to_count[1]:
+                for cell in ws[ws.max_row]:
+                    cell.font = Font(bold=True)
+            
+            if '48g' in to_count[1]:
+                side_style = Side(border_style = 'thick', color = '000000')
+                for cell in ws[ws.max_row]:
+                    cell.border = Border(top = side_style, bottom = side_style, left = side_style, right = side_style)
+    #convert batch report file downloaded by default as type .csv to the openpyxl compatible .xlsx format
+    original = pd.read_csv(file_path)
+    original.to_excel(excel_writer = batch_path, index=None, header=True)
+
+    wb = openpyxl.load_workbook(batch_path)
+
+    ws = wb.active
+
+    ws.delete_cols(4, 5)
+
+    excel_data = []
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if 'COFFEE SUBSCRIPTION' in row[0]:
+            if 'Medium & Dark' in row[0] or 'Medium & Dark' in row[1]:
+                coffees = coffee_of_the_month(row, 'med')
+            elif 'Light' in row[0] or 'Light' in row[1]:
+                coffees = coffee_of_the_month(row, 'light')
+            
+            for item in coffees:
+                excel_data.append((enumerate_coffee(item), item))
+                
+        num = enumerate_coffee(row)
+        if num > 0:
+            
+            if '$' in row[1]:
+                replacement = delete_price(row)
+
+                new_row = (row[0], replacement, row[2])
+                to_app =(num, new_row)
+            else: to_app = (num, row)
         
+            excel_data.append(to_app)
+            
+    ws.delete_rows(2, ws.max_row-1)
 
-#convert batch report file downloaded by default as type .csv to the openpyxl compatible .xlsx format
-original = pd.read_csv(glob.glob('*.csv')[0])
-original.to_excel(r'batch.xlsx', index=None, header=True)
+    excel_data.sort()
 
-wb = openpyxl.load_workbook('batch.xlsx')
+    coffee_to_sort = []
+    current = 1
 
-ws = wb.active
+    # print(excel_data)
 
+    while len(excel_data) > 0:
+        coffee_to_sort.clear()
 
-ws.delete_cols(4, 5)
+        while len(excel_data) > 0 and excel_data[0][0] == current:
+            coffee = excel_data.pop(0)
+            coffee_to_sort.append(coffee[1])
 
-excel_data = []
-for row in ws.iter_rows(min_row=2, values_only=True):
-    if 'COFFEE SUBSCRIPTION' in row[0]:
-        if 'Medium & Dark' in row[0] or 'Medium & Dark' in row[1]:
-            coffees = coffee_of_the_month(row, 'med')
-        elif 'Light' in row[0] or 'Light' in row[1]:
-            coffees = coffee_of_the_month(row, 'light')
+        if len(coffee_to_sort) > 0:
+                    ws.append(['blank'])
+                    ws['A'+str(ws.max_row)].font = Font(color='00FFFFFF')
+                    
+        format_rows(coffee_to_sort)
         
-        for item in coffees:
-            excel_data.append((enumerate_coffee(item), item))
-        
-        
-        
-    num = enumerate_coffee(row)
-    if num > 0:
-        
-        if '$' in row[1]:
-            replacement = delete_price(row)
+        current += 1
 
-            new_row = (row[0], replacement, row[2])
-            to_app =(num, new_row)
-        else: to_app = (num, row)
+    ws.column_dimensions['A'].width = 34
+    ws.column_dimensions['B'].width = 60
+    ws.column_dimensions['C'].width = 10
+
     
-        excel_data.append(to_app)
-        
+    wb.save(batch_path)
 
-ws.delete_rows(2, ws.max_row-1)
-
-excel_data.sort()
-
-coffee_to_sort = []
-current = 1
-
-# print(excel_data)
-
-while len(excel_data) > 0:
-    coffee_to_sort.clear()
-
-    while len(excel_data) > 0 and excel_data[0][0] == current:
-        coffee = excel_data.pop(0)
-        coffee_to_sort.append(coffee[1])
-
-    format_rows(coffee_to_sort)
-    
-    ws.append(['blank'])
-    ws['A'+str(ws.max_row)].font = Font(color='00FFFFFF')
-    current += 1
-
-ws.column_dimensions['A'].width = 34
-ws.column_dimensions['B'].width = 60
-ws.column_dimensions['C'].width = 10
-
-wb.save('batch.xlsx')
-os._exit(0)
+if __name__ == '__main__': main()
