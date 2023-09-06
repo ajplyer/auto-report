@@ -1,7 +1,8 @@
-import os
+from os import path
 import openpyxl
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font, PatternFill, Border, Side
 import pandas as pd
+from datetime import datetime
 
 #Returns numerical value of a row based on its coffee's position in the list of coffees
 #this facilitates a dynamic sorting order for the purposes of batch report formatting
@@ -51,13 +52,15 @@ def coffee_of_the_month(com_row, type):
     return to_return
 
 def main(file_path):
+    current_date = datetime.now().strftime('%m%d%y%H%M')
+    batch_name = 'batch ' + current_date + '.xlsx'
+    batch_path = path.dirname(file_path) + '/' + batch_name
 
     #Nested within main() due to functionality being more centrally dependant than other functions
     #Function interprets lists from lines 123-128 and appends them to excel worksheet with appropriate formatting 
     def format_rows(current_coffee):
         current_coffee.sort(key=lambda row: row[1], reverse=True)
         
-
         while len(current_coffee) > 0:
             to_count = current_coffee.pop(0)
             amount = to_count[2]
@@ -76,12 +79,16 @@ def main(file_path):
             if '#0' not in to_count[1]:
                 for cell in ws[ws.max_row]:
                     cell.font = Font(bold=True)
+            
+            if '48g' in to_count[1]:
+                side_style = Side(border_style = 'thick', color = '000000')
+                for cell in ws[ws.max_row]:
+                    cell.border = Border(top = side_style, bottom = side_style, left = side_style, right = side_style)
     #convert batch report file downloaded by default as type .csv to the openpyxl compatible .xlsx format
-    # glob.glob('*.csv')[0]
     original = pd.read_csv(file_path)
-    original.to_excel(r'batch.xlsx', index=None, header=True)
+    original.to_excel(excel_writer = batch_path, index=None, header=True)
 
-    wb = openpyxl.load_workbook('batch.xlsx')
+    wb = openpyxl.load_workbook(batch_path)
 
     ws = wb.active
 
@@ -126,17 +133,19 @@ def main(file_path):
             coffee = excel_data.pop(0)
             coffee_to_sort.append(coffee[1])
 
+        if len(coffee_to_sort) > 0:
+                    ws.append(['blank'])
+                    ws['A'+str(ws.max_row)].font = Font(color='00FFFFFF')
+                    
         format_rows(coffee_to_sort)
         
-        ws.append(['blank'])
-        ws['A'+str(ws.max_row)].font = Font(color='00FFFFFF')
         current += 1
 
     ws.column_dimensions['A'].width = 34
     ws.column_dimensions['B'].width = 60
     ws.column_dimensions['C'].width = 10
 
-    save_here = os.path.dirname(file_path)
-    wb.save(save_here + '/batch.xlsx')
+    
+    wb.save(batch_path)
 
 if __name__ == '__main__': main()
