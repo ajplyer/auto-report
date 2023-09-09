@@ -9,7 +9,7 @@ As these reports are first generated, they are entirely unsorted and contain lin
 
 These reports were then manually sorted and formatted to appear as pictured below:
 
-![completed batch report](https://github.com/ajplyer/auto-report/assets/119643565/7a6079db-5ffc-4430-a71e-7181055a0945)
+![completed batch report](https://github.com/ajplyer/auto-report/assets/119643565/962ac808-194f-470f-9247-ce8cfc92dd7f)
 
 While not complex, the process was tedious and required some knowledge of excel. Auto Report fixes this by completely sorting and formatting the batch reports, including the translation of "Coffee Of The Month" subscriptions to their respective coffees.
 
@@ -40,3 +40,4 @@ The names in all text files must be typed exactly as they appear in the original
     - [ ] Icon
     - [ ] Stylize drag and drop entry box
     - [ ] Format colors to match Stone Creek Coffee color schemes
+
